@@ -1,27 +1,49 @@
 package com.pfunes.spbt.EmployeeRestApi.exception;
 
+import com.pfunes.spbt.EmployeeRestApi.entity.Employee;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Response {
 
-    private int id;
+    private int idStatus;
 
     private String message;
 
     private long timeStamp;
 
-    public Response(){}
+    private List<Employee> dataEmployees;
 
-    public Response(int id, String message, long timeStamp) {
-        this.id = id;
+
+    public Response(){this.dataEmployees = new ArrayList<>();}
+
+    public Response(int idStatus, String message, long timeStamp) {
+        this();
+        this.idStatus = idStatus;
         this.message = message;
         this.timeStamp = timeStamp;
     }
 
-    public int getId() {
-        return id;
+    public List<Employee> addEmployeeToList(Employee employee){
+        dataEmployees.add(employee);
+        return dataEmployees;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public List<Employee> getDataEmployees() {
+        return dataEmployees;
+    }
+
+    public void setDataEmployees(List<Employee> dataEmployees) {
+        this.dataEmployees = dataEmployees;
+    }
+
+    public int getId() {
+        return idStatus;
+    }
+
+    public void setId(int idStatus) {
+        this.idStatus = idStatus;
     }
 
     public String getMessage() {

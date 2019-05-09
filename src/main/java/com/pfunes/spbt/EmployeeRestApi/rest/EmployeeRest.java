@@ -19,24 +19,68 @@ public class EmployeeRest {
 
     // get list of employees
     @GetMapping("/employees")
-    public List<Employee> allEmployees(){
+    public Response allEmployees(){
 
         List<Employee> employees = employeeService.findAll();
+        Response response = new Response(HttpStatus.OK.value(), "List of employees", System.currentTimeMillis());
+        response.setDataEmployees(employees);
 
-        return employees;
+        return response;
+    }
+
+    @GetMapping("/employees/{employeeId}")
+    public Response geEmployee(@PathVariable int employeeId){
+
+        Employee tempEmp = employeeService.findById(employeeId);
+
+        if(tempEmp==null)
+            throw new EmployeeNotFoundException("Employee id not found: " + employeeId);
+
+        Response response = new Response(HttpStatus.OK.value(), "Employee finded", System.currentTimeMillis());
+        response.setDataEmployees(response.addEmployeeToList(tempEmp));
+
+        return response;
     }
 
     // get employee searching by name
     @GetMapping("/employees/name/{name}")
-    public List<Employee> findEmployeeQueryname(@PathVariable String name){
-        return employeeService.findByQueryName(name);
+    public Response findEmployeeQueryname(@PathVariable String name){
+
+        List<Employee> employeeList = employeeService.findByQueryName(name);
+
+        if (employeeList == null)
+            throw new EmployeeNotFoundException("Employee name containing " + name + " was not found");
+
+        Response response = new Response(HttpStatus.OK.value(), "Employee name containing " + name, System.currentTimeMillis());
+        response.setDataEmployees(employeeList);
+
+        return response;
+    }
+
+    @PutMapping("/employees")
+    public Response updateEmployee(@RequestBody Employee employee){
+
+        Employee tempEmp = employeeService.findById(employee.getId());
+
+        if(tempEmp==null)
+            throw new EmployeeNotFoundException("Employee id not found: " + employee.getId());
+
+        tempEmp = employeeService.save(employee);
+        Response response = new Response(HttpStatus.OK.value(), "Employee id " + employee.getId() + " just updated.", System.currentTimeMillis());
+        response.setDataEmployees(response.addEmployeeToList(tempEmp));
+
+        return response;
     }
 
     // save employee
     @PostMapping("/employees")
     public Response saveEmployee(@RequestBody Employee employee){
-         employeeService.save(employee);
-         return new Response(HttpStatus.OK.value(), "Employee saved.", System.currentTimeMillis());
+         Employee tempEmp = employeeService.save(employee);
+
+         Response response = new Response(HttpStatus.OK.value(), "Employee saved.", System.currentTimeMillis());
+         response.setDataEmployees(response.addEmployeeToList(tempEmp));
+
+         return response;
     }
 
     //delete employee
@@ -49,8 +93,10 @@ public class EmployeeRest {
             throw new EmployeeNotFoundException("Employee id not found: " + idEmployee);
 
         employeeService.delete(idEmployee);
+        Response response = new Response(HttpStatus.OK.value(), "Employee id deleted: " + idEmployee, System.currentTimeMillis());
+        response.setDataEmployees(employeeService.findAll());
 
-        return new Response(HttpStatus.OK.value(), "Employee id deleted: " + idEmployee, System.currentTimeMillis());
+        return response;
     }
 
 
